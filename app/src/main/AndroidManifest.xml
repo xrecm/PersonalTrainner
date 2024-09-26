@@ -18,8 +18,10 @@
         <activity android:name=".MembresiaListActivity"/>
         <activity android:name=".MembresiaRegistroActivity"/>
         <activity android:name=".EjercicioActivity" />
+        <activity android:name=".EjercicioEditarActivity" />
         <activity android:name=".EjercicioRegistroActivity" />
         <activity android:name=".RutinaActivity" />
+        <activity android:name=".VerRutinaActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

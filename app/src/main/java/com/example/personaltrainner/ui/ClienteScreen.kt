@@ -1,5 +1,6 @@
 package com.example.personaltrainner.ui
 
+import android.content.Intent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,9 +15,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.personaltrainner.VerRutinaActivity
 import com.example.personaltrainner.business.ClienteViewModel
 import com.example.personaltrainner.business.MembresiaViewModel
 import com.example.personaltrainner.data.ClienteEntity
@@ -95,8 +98,8 @@ fun ClienteCard(
     val isActive = checkIfActive(cliente.fechaInicioMembresia, cliente.fechaFinMembresia)
     val statusColor = if (isActive) Color(0xFF4CAF50) else Color(0xFFF44336) // Verde para activo, rojo para inactivo
     val statusText = if (isActive) "Activo" else "Inactivo"
-
-    Card(
+    val context = LocalContext.current
+            Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
@@ -236,11 +239,17 @@ fun ClienteCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    onClick = { onVerRutinaClick(cliente) },
+                    onClick = {
+                        val intent = Intent(context, VerRutinaActivity::class.java)
+                        intent.putExtra("clienteId", cliente.id)
+                        intent.putExtra("clienteNombre", cliente.nombre)
+                        intent.putExtra("clienteApellido", cliente.apellido)
+                        context.startActivity(intent)
+                    },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
                     modifier = Modifier.weight(1f).padding(end = 4.dp)
                 ) {
-                    Text("Ver Rutina")
+                    Text("Rutina")
                 }
 
                 Button(

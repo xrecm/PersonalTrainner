@@ -45,7 +45,7 @@ class ClienteListActivity : ComponentActivity() {
                         startActivity(Intent(this@ClienteListActivity, ClienteRegistroActivity::class.java))
                     },
                     navigateToRutina = { clienteId ->
-                        val intent = Intent(this@ClienteListActivity, RutinaActivity::class.java).apply {
+                        val intent = Intent(this@ClienteListActivity, VerRutinaActivity::class.java).apply {
                             putExtra("clienteId", clienteId)
                         }
                         startActivity(intent)

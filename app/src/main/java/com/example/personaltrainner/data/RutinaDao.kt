@@ -15,6 +15,9 @@ interface RutinaDao {
     @Query("SELECT * FROM rutinas WHERE clienteId = :clienteId")
     fun obtenerTodosLosPlanes(clienteId: Int): Flow<List<RutinaEntity>>
 
+    @Query("SELECT * FROM rutinas WHERE clienteId = :clienteId ORDER BY fecha ASC")
+    fun obtenerRutinasPorCliente(clienteId: Int): Flow<List<RutinaEntity>>
+
     @Query("DELETE FROM rutinas WHERE id = :planId")
     suspend fun eliminarRutina(planId: Int)
 }

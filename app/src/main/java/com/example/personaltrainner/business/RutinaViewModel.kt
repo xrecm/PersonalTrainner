@@ -14,14 +14,15 @@ class RutinaViewModel(private val repository: RutinaRepository) : ViewModel() {
             repository.insertarRutina(rutina)
         }
     }
-
     fun obtenerTodosLosPlanes(clienteId: Int): Flow<List<RutinaEntity>> {
         return repository.obtenerTodosLosPlanes(clienteId)
     }
-
     fun eliminarRutina(rutinaId: Int) {
         viewModelScope.launch {
             repository.eliminarPlan(rutinaId)
         }
+    }
+    fun obtenerRutinasPorCliente(clienteId: Int): Flow<List<RutinaEntity>> {
+        return repository.obtenerRutinasPorCliente(clienteId)
     }
 }

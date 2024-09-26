@@ -9,15 +9,24 @@ import kotlinx.coroutines.launch
 
 class EjercicioViewModel(private val repository: EjercicioRepository) : ViewModel() {
 
-    // Función para insertar un nuevo ejercicio en la base de datos
     fun insertarEjercicio(ejercicio: EjercicioEntity) {
         viewModelScope.launch {
             repository.insertarEjercicio(ejercicio)
         }
     }
-
-    // Función para obtener todos los ejercicios desde la base de datos
     fun obtenerTodosLosEjercicios(): Flow<List<EjercicioEntity>> {
         return repository.obtenerTodosLosEjercicios()
     }
+    fun obtenerEjercicioPorId(ejercicioId: Int): Flow<EjercicioEntity?> {
+        return repository.obtenerEjercicioPorId(ejercicioId)
+    }
+    fun actualizarEjercicio(ejercicio: EjercicioEntity) = viewModelScope.launch {
+        repository.actualizarEjercicio(ejercicio)
+    }
+    fun eliminar(ejercicio: EjercicioEntity) {
+        viewModelScope.launch {
+            repository.eliminar(ejercicio)
+        }
+    }
+
 }
