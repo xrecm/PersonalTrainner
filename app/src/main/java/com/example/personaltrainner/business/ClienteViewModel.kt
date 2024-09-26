@@ -14,12 +14,18 @@ class ClienteViewModel(private val repository: ClienteRepository) : ViewModel() 
             repository.insertarCliente(cliente)
         }
     }
-
     fun obtenerTodosLosClientes() = repository.obtenerTodosLosClientes()
-
     fun eliminarCliente(cliente: ClienteEntity) {
         viewModelScope.launch {
             repository.eliminarCliente(cliente)
+        }
+    }
+    fun obtenerClientePorId(clienteId: Int): Flow<ClienteEntity?> {
+        return repository.obtenerClientePorId(clienteId)
+    }
+    fun actualizarCliente(cliente: ClienteEntity) {
+        viewModelScope.launch {
+            repository.actualizarCliente(cliente)
         }
     }
 }

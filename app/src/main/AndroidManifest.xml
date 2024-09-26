@@ -13,6 +13,7 @@
         android:theme="@style/Theme.PersonalTrainner"
         tools:targetApi="31">
         <activity android:name=".ClienteListActivity" />
+        <activity android:name=".ClienteEditarActivity" />
         <activity android:name=".ClienteRegistroActivity" />
         <activity android:name=".MembresiaListActivity"/>
         <activity android:name=".MembresiaRegistroActivity"/>

@@ -9,6 +9,10 @@ interface ClienteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarCliente(cliente: ClienteEntity)
 
+    @Query("SELECT * FROM clientes WHERE id = :clienteId")
+    fun obtenerClientePorId(clienteId: Int): Flow<ClienteEntity?>
+
+
     @Update
     suspend fun actualizarCliente(cliente: ClienteEntity)
 

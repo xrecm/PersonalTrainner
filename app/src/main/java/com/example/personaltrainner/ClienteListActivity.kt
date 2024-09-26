@@ -50,10 +50,9 @@ class ClienteListActivity : ComponentActivity() {
                         }
                         startActivity(intent)
                     },
-                    navigateToEditar = { clienteId ->
-                        val intent = Intent(this@ClienteListActivity, ClienteRegistroActivity::class.java).apply {
-                            putExtra("clienteId", clienteId)
-                        }
+                    navigateToEditar = { cliente ->
+                        val intent = Intent(this@ClienteListActivity, ClienteEditarActivity::class.java)
+                        intent.putExtra("clienteId", cliente) // Pasamos el ID del cliente a editar
                         startActivity(intent)
                     }
                 )
