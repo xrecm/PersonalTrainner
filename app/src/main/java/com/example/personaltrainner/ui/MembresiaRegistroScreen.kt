@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -30,9 +31,9 @@ fun MembresiaRegistroScreen(
     var descripcion by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
     var isEditMode by remember { mutableStateOf(false) }
+    var expandedTipo by remember { mutableStateOf(false) }  // Estado para el dropdown
 
-    val tiposMembresia = listOf("Semanal", "Mensual", "Trimestral", "6 meses", "Anual")
-    var expanded by remember { mutableStateOf(false) }
+    val tiposMembresia = listOf("Semanal", "Mensual", "3 Meses", "6 meses", "Anual")
 
     // Cargar los datos de la membresía si estamos en modo de edición
     LaunchedEffect(membresiaId) {
@@ -72,28 +73,40 @@ fun MembresiaRegistroScreen(
 
         // Dropdown para seleccionar el tipo de membresía
         ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded },
-            modifier = Modifier.fillMaxWidth()
+            expanded = expandedTipo,
+            onExpandedChange = { expandedTipo = !expandedTipo }
         ) {
             OutlinedTextField(
                 value = tipo,
                 onValueChange = {},
-                label = { Text("Tipo de Membresía") },
+                label = { Text("Tipo de Membresía", color = Color.Black) },
                 readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.fillMaxWidth()
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedBorderColor = Color.Black,
+                    unfocusedBorderColor = Color.Gray,
+                    focusedLabelColor = Color.Black,
+                    unfocusedLabelColor = Color.Black,
+                    cursorColor = Color.Black
+                ),
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedTipo)
+                },
+                modifier = Modifier.fillMaxWidth().menuAnchor()
             )
+
             ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+                expanded = expandedTipo,
+                onDismissRequest = { expandedTipo = false }
             ) {
                 tiposMembresia.forEach { tipoMembresia ->
                     DropdownMenuItem(
                         text = { Text(tipoMembresia) },
                         onClick = {
                             tipo = tipoMembresia
-                            expanded = false
+                            expandedTipo = false
                         }
                     )
                 }
@@ -104,28 +117,43 @@ fun MembresiaRegistroScreen(
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre de la Membresía") },
+            label = { Text("Nombre de la Membresía", color = Color.Black) },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary)
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         // Campo de texto para la descripción
         OutlinedTextField(
             value = descripcion,
             onValueChange = { descripcion = it },
-            label = { Text("Descripción") },
+            label = { Text("Descripción", color = Color.Black) },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary)
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         // Campo de texto para el precio
         OutlinedTextField(
             value = precio,
             onValueChange = { precio = it },
-            label = { Text("Precio") },
+            label = { Text("Precio", color = Color.Black) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = MaterialTheme.colorScheme.primary)
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                cursorColor = Color.Black
+            )
         )
 
         // Botón para guardar la membresía (nueva o editada)

@@ -91,7 +91,7 @@ fun MembresiaCard(
             )
             Text(text = "Tipo: ${membresia.tipo}")
             Text(text = "Descripción: ${membresia.descripcion}")
-            Text(text = "Precio: $${membresia.precio}")
+            Text(text = "Precio: Bs${membresia.precio}")
 
             Spacer(modifier = Modifier.height(8.dp))
 
