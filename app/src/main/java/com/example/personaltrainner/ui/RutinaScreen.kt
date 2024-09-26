@@ -60,7 +60,7 @@ fun RutinaScreen(
     ) {
         // Título
         Text(
-            text = "Crear Rutina de la Semana",
+            text = "Crear Rutina",
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
             ),

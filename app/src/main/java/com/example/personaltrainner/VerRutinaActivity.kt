@@ -1,6 +1,7 @@
 package com.example.personaltrainner
 
 import VerRutinaScreen
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -53,7 +54,13 @@ class VerRutinaActivity : ComponentActivity() {
                     clienteNombre = clienteNombre,
                     clienteApellido = clienteApellido,
                     rutinaViewModel = rutinaViewModel,
-                    ejercicioViewModel = ejercicioViewModel
+                    ejercicioViewModel = ejercicioViewModel,
+                    onEditRutina = { rutinaId ->
+                        // Acción para editar la rutina
+                        val intent = Intent(this, RutinaEditarActivity::class.java)
+                        intent.putExtra("rutinaId", rutinaId)
+                        startActivity(intent)
+                    }
                 )
             }
         }

@@ -18,7 +18,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun VerRutinaScreen(clienteId: Int, clienteNombre: String, clienteApellido: String, rutinaViewModel: RutinaViewModel, ejercicioViewModel: EjercicioViewModel) {
+fun VerRutinaScreen(
+    clienteId: Int,
+    clienteNombre: String,
+    clienteApellido: String,
+    rutinaViewModel: RutinaViewModel,
+    ejercicioViewModel: EjercicioViewModel,
+    onEditRutina: (Int) -> Unit // Función para navegar a la pantalla de edición
+) {
     val rutinas by rutinaViewModel.obtenerRutinasPorCliente(clienteId).collectAsState(initial = emptyList())
     val context = LocalContext.current
 
@@ -66,7 +73,9 @@ fun VerRutinaScreen(clienteId: Int, clienteNombre: String, clienteApellido: Stri
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(rutinas) { rutina ->
-                    RutinaCard(rutina, ejercicioViewModel)
+                    RutinaCard(rutina, ejercicioViewModel, onEditRutina, onDelete = {
+                        rutinaViewModel.eliminarRutina(rutina) // Eliminar la rutina
+                    })
                 }
             }
         }
@@ -74,7 +83,12 @@ fun VerRutinaScreen(clienteId: Int, clienteNombre: String, clienteApellido: Stri
 }
 
 @Composable
-fun RutinaCard(rutina: RutinaEntity, ejercicioViewModel: EjercicioViewModel) {
+fun RutinaCard(
+    rutina: RutinaEntity,
+    ejercicioViewModel: EjercicioViewModel,
+    onEdit: (Int) -> Unit, // Callback para editar
+    onDelete: () -> Unit   // Callback para eliminar
+) {
     // Recoger el ejercicio correspondiente usando collectAsState
     val ejercicio by ejercicioViewModel.obtenerEjercicioPorId(rutina.ejercicioId).collectAsState(initial = null)
     val fechaFormateada = formatearFecha(rutina.fecha)
@@ -116,9 +130,32 @@ fun RutinaCard(rutina: RutinaEntity, ejercicioViewModel: EjercicioViewModel) {
                 text = "Series: ${rutina.series}",
                 style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface)
             )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Botones Editar y Eliminar
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(
+                    onClick = { onEdit(rutina.id) },
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Editar")
+                }
+
+                Button(
+                    onClick = { onDelete() },
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Eliminar")
+                }
+            }
         }
     }
 }
+
 
 // Función para formatear la fecha a un formato legible
 fun formatearFecha(fecha: Date): String {

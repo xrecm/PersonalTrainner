@@ -1,9 +1,11 @@
 package com.example.personaltrainner.data
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,7 +19,10 @@ interface RutinaDao {
 
     @Query("SELECT * FROM rutinas WHERE clienteId = :clienteId ORDER BY fecha ASC")
     fun obtenerRutinasPorCliente(clienteId: Int): Flow<List<RutinaEntity>>
-
-    @Query("DELETE FROM rutinas WHERE id = :planId")
-    suspend fun eliminarRutina(planId: Int)
+    @Update
+    suspend fun actualizarRutina(rutina: RutinaEntity)
+    @Delete
+    suspend fun eliminarRutina(rutina: RutinaEntity)
+    @Query("SELECT * FROM rutinas WHERE id = :rutinaId LIMIT 1")
+    fun obtenerRutinaPorId(rutinaId: Int): Flow<RutinaEntity?>
 }
