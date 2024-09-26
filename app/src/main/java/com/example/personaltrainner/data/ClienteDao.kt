@@ -13,7 +13,10 @@ interface ClienteDao {
     suspend fun actualizarCliente(cliente: ClienteEntity)
 
     @Delete
-    suspend fun eliminarCliente(cliente: ClienteEntity)
+    suspend fun eliminar(cliente: ClienteEntity)
+
+    @Query("SELECT * FROM clientes WHERE id = :clienteId")
+    suspend fun obtenerCliente(clienteId: Int): ClienteEntity
 
     @Query("SELECT * FROM clientes")
     fun obtenerTodosLosClientes(): Flow<List<ClienteEntity>>

@@ -16,4 +16,10 @@ class ClienteViewModel(private val repository: ClienteRepository) : ViewModel() 
     }
 
     fun obtenerTodosLosClientes() = repository.obtenerTodosLosClientes()
+
+    fun eliminarCliente(cliente: ClienteEntity) {
+        viewModelScope.launch {
+            repository.eliminarCliente(cliente)
+        }
+    }
 }

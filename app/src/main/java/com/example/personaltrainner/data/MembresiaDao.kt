@@ -14,6 +14,9 @@ interface MembresiaDao {
     suspend fun insertarMembresia(membresia: MembresiaEntity)
 
     @Query("SELECT * FROM membresia")
+    fun getAllMembresias(): Flow<List<MembresiaEntity>>
+
+    @Query("SELECT * FROM membresia")
     fun obtenerTodasLasMembresias(): Flow<List<MembresiaEntity>>
 
     @Delete

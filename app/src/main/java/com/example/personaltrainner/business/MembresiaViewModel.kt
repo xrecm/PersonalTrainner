@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.first
 class MembresiaViewModel(private val repository: MembresiaRepository) : ViewModel() {
     val todasLasMembresias: Flow<List<MembresiaEntity>> = repository.obtenerTodasLasMembresias()
 
+    fun obtenerTodasLasMembresias(): Flow<List<MembresiaEntity>> {
+        return repository.obtenerTodasLasMembresias()
+    }
+
     fun insertarMembresia(membresia: MembresiaEntity) {
         viewModelScope.launch {
             repository.insertarMembresia(membresia)

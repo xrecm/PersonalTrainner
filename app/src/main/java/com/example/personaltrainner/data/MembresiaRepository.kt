@@ -3,7 +3,6 @@ package com.example.personaltrainner.data
 import kotlinx.coroutines.flow.Flow
 
 class MembresiaRepository(private val membresiaDao: MembresiaDao) {
-    fun obtenerTodasLasMembresias() = membresiaDao.obtenerTodasLasMembresias()
 
     suspend fun insertarMembresia(membresia: MembresiaEntity) {
         membresiaDao.insertarMembresia(membresia)
@@ -19,5 +18,9 @@ class MembresiaRepository(private val membresiaDao: MembresiaDao) {
 
     fun obtenerMembresiaPorId(id: Int): Flow<MembresiaEntity?> {
         return membresiaDao.obtenerMembresiaPorId(id)
+    }
+
+    fun obtenerTodasLasMembresias(): Flow<List<MembresiaEntity>> {
+        return membresiaDao.obtenerTodasLasMembresias()
     }
 }

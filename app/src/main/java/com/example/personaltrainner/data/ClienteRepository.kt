@@ -13,7 +13,7 @@ class ClienteRepository(private val clienteDao: ClienteDao) {
     }
 
     suspend fun eliminarCliente(cliente: ClienteEntity) {
-        clienteDao.eliminarCliente(cliente)
+        clienteDao.eliminar(cliente)
     }
 
     fun obtenerTodosLosClientes(): Flow<List<ClienteEntity>> {
