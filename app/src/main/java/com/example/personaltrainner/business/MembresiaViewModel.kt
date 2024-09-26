@@ -16,22 +16,16 @@ class MembresiaViewModel(private val repository: MembresiaRepository) : ViewMode
             repository.insertarMembresia(membresia)
         }
     }
-
-    // Eliminar una membresía
     fun eliminarMembresia(membresia: MembresiaEntity) {
         viewModelScope.launch {
             repository.eliminarMembresia(membresia)
         }
     }
-
-    // actualizar membresía
     fun actualizarMembresia(membresia: MembresiaEntity) {
         viewModelScope.launch {
             repository.actualizarMembresia(membresia)
         }
     }
-
-    // Obtener una membresía específica para editarla
     suspend fun obtenerMembresiaPorId(id: Int): MembresiaEntity? {
         return repository.obtenerMembresiaPorId(id).first()
     }

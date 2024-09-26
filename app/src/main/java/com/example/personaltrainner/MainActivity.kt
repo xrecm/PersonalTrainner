@@ -1,6 +1,5 @@
 package com.example.personaltrainner
 
-import MembresiaListActivity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity

@@ -1,6 +1,3 @@
-package com.example.personaltrainner.ui
-
-import MembresiaRegistroActivity
 import android.content.Intent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,18 +18,21 @@ import androidx.compose.ui.unit.sp
 import com.example.personaltrainner.business.MembresiaViewModel
 import com.example.personaltrainner.data.MembresiaEntity
 
-
 @Composable
-fun MembresiaListScreen(viewModel: MembresiaViewModel, navigateToRegistro: () -> Unit) {
+fun MembresiaListScreen(
+    viewModel: MembresiaViewModel,
+    navigateToRegistro: () -> Unit,
+    navigateToEditar: (Int) -> Unit
+) {
     val membresias by viewModel.todasLasMembresias.collectAsState(initial = emptyList())
-    val context = LocalContext.current
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)) {
+
         // Botón para agregar una nueva membresía
         Button(
-            onClick = {
-                navigateToRegistro()
-            },
+            onClick = navigateToRegistro,
             modifier = Modifier.align(Alignment.End).padding(bottom = 16.dp)
         ) {
             Icon(Icons.Default.Add, contentDescription = "Registrar Membresía")
@@ -56,16 +56,18 @@ fun MembresiaListScreen(viewModel: MembresiaViewModel, navigateToRegistro: () ->
             modifier = Modifier.fillMaxSize()
         ) {
             items(membresias) { membresia ->
-                MembresiaCard(membresia = membresia, viewModel = viewModel)
+                MembresiaCard(membresia = membresia, viewModel = viewModel, navigateToEditar = navigateToEditar)
             }
         }
     }
 }
 
 @Composable
-fun MembresiaCard(membresia: MembresiaEntity, viewModel: MembresiaViewModel) {
-    val context = LocalContext.current // Obtén el contexto de la actividad actual
-
+fun MembresiaCard(
+    membresia: MembresiaEntity,
+    viewModel: MembresiaViewModel,
+    navigateToEditar: (Int) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,12 +101,7 @@ fun MembresiaCard(membresia: MembresiaEntity, viewModel: MembresiaViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    onClick = {
-                        val intent = Intent(context, MembresiaRegistroActivity::class.java).apply {
-                            putExtra("membresiaId", membresia.id) // Pasamos el ID de la membresía para editar
-                        }
-                        context.startActivity(intent) // Llamamos al método startActivity() con el contexto correcto
-                    },
+                    onClick = { navigateToEditar(membresia.id) },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary),
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
@@ -114,9 +111,7 @@ fun MembresiaCard(membresia: MembresiaEntity, viewModel: MembresiaViewModel) {
                 }
 
                 Button(
-                    onClick = {
-                        viewModel.eliminarMembresia(membresia) // Lógica para eliminar la membresía
-                    },
+                    onClick = { viewModel.eliminarMembresia(membresia) },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = "Eliminar")
