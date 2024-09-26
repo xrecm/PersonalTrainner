@@ -12,17 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.personaltrainner.business.PlanSemanalViewModel
+import com.example.personaltrainner.business.RutinaViewModel
 import com.example.personaltrainner.data.ClienteEntity
 import com.example.personaltrainner.data.EjercicioEntity
-import com.example.personaltrainner.data.PlanSemanalEntity
+import com.example.personaltrainner.data.RutinaEntity
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlanSemanalScreen(
-    viewModel: PlanSemanalViewModel,
+fun RutinaScreen(
+    viewModel: RutinaViewModel,
     clientes: List<ClienteEntity>,
     ejercicios: List<EjercicioEntity>
 ) {
@@ -202,8 +202,8 @@ fun PlanSemanalScreen(
         Button(
             onClick = {
                 if (selectedClienteId != 0 && selectedEjercicioId != 0 && fechaSeleccionada.isNotEmpty() && repeticiones.isNotEmpty() && series.isNotEmpty()) {
-                    viewModel.insertarPlanSemanal(
-                        PlanSemanalEntity(
+                    viewModel.insertarRutina(
+                        RutinaEntity(
                             clienteId = selectedClienteId,
                             ejercicioId = selectedEjercicioId,
                             fecha = SimpleDateFormat("dd/MM/yyyy").parse(fechaSeleccionada),
@@ -228,9 +228,9 @@ fun PlanSemanalScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Mostrar la lista de planes semanales guardados
-        val planesSemanal by viewModel.obtenerTodosLosPlanes(1).collectAsState(initial = emptyList()) // Cambia el clienteId según sea necesario
+        val rutinas by viewModel.obtenerTodosLosPlanes(1).collectAsState(initial = emptyList()) // Cambia el clienteId según sea necesario
         LazyColumn {
-            items(planesSemanal) { plan ->
+            items(rutinas) { rut ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -241,11 +241,11 @@ fun PlanSemanalScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = "Cliente: ${plan.clienteId}")
-                        Text(text = "Ejercicio: ${plan.ejercicioId}")
-                        Text(text = "Fecha: ${SimpleDateFormat("dd/MM/yyyy").format(plan.fecha)}")
-                        Text(text = "Repeticiones: ${plan.repeticiones}")
-                        Text(text = "Series: ${plan.series}")
+                        Text(text = "Cliente: ${rut.clienteId}")
+                        Text(text = "Ejercicio: ${rut.ejercicioId}")
+                        Text(text = "Fecha: ${SimpleDateFormat("dd/MM/yyyy").format(rut.fecha)}")
+                        Text(text = "Repeticiones: ${rut.repeticiones}")
+                        Text(text = "Series: ${rut.series}")
                     }
                 }
             }

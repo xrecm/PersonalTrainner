@@ -1,17 +1,14 @@
 package com.example.personaltrainner
 
+import MembresiaListActivity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.Button
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.personaltrainner.ui.theme.PersonalTrainnerTheme
 
@@ -35,7 +32,7 @@ class MainActivity : ComponentActivity() {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón para ir a la pantalla de texto
+                    // Botón para ir a la pantalla de ejercicios
                     Button(onClick = {
                         startActivity(Intent(this@MainActivity, EjercicioActivity::class.java))
                     }) {
@@ -44,13 +41,24 @@ class MainActivity : ComponentActivity() {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón para ir a la pantalla de texto
+                    // Botón para ir a la pantalla de rutina semanal
                     Button(onClick = {
-                        startActivity(Intent(this@MainActivity, PlanSemanalActivity::class.java))
-                        },
+                        startActivity(Intent(this@MainActivity, RutinaActivity::class.java))
+                    },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(text = "Rutina de la semana")
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Botón para ir a la pantalla de membresías
+                    Button(onClick = {
+                        startActivity(Intent(this@MainActivity, MembresiaListActivity::class.java))
+                    },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Ir a Membresías")
                     }
                 }
             }

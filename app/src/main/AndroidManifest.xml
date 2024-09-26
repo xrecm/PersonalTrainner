@@ -16,7 +16,9 @@
         <activity android:name=".ClienteRegistroActivity" />
         <activity android:name=".EjercicioActivity" />
         <activity android:name=".EjercicioRegistroActivity" />
-        <activity android:name=".PlanSemanalActivity" />
+        <activity android:name=".RutinaActivity" />
+        <activity android:name=".MembresiaListActivity" />
+        <activity android:name=".MembresiaRegistroActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

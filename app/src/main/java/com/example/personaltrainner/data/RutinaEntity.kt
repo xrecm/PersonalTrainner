@@ -6,13 +6,13 @@ import androidx.room.PrimaryKey
 import java.util.Date
 
 @Entity(
-    tableName = "planes_semanales",
+    tableName = "rutinas",
     foreignKeys = [
         ForeignKey(entity = ClienteEntity::class, parentColumns = ["id"], childColumns = ["clienteId"]),
         ForeignKey(entity = EjercicioEntity::class, parentColumns = ["id"], childColumns = ["ejercicioId"])
     ]
 )
-data class PlanSemanalEntity(
+data class RutinaEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val clienteId: Int,
     val ejercicioId: Int,

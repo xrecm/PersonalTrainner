@@ -4,26 +4,26 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
-import com.example.personaltrainner.business.PlanSemanalViewModel
+import com.example.personaltrainner.business.RutinaViewModel
 import com.example.personaltrainner.data.AppDatabase
-import com.example.personaltrainner.data.PlanSemanalRepository
-import com.example.personaltrainner.ui.PlanSemanalScreen
+import com.example.personaltrainner.data.RutinaRepository
+import com.example.personaltrainner.ui.RutinaScreen
 import com.example.personaltrainner.ui.theme.PersonalTrainnerTheme
 import kotlinx.coroutines.launch
 
-class PlanSemanalActivity : ComponentActivity() {
+class RutinaActivity : ComponentActivity() {
 
-    private lateinit var planSemanalViewModel: PlanSemanalViewModel
+    private lateinit var rutinaViewModel: RutinaViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Inicializar la base de datos y el repositorio
         val database = AppDatabase.getDatabase(applicationContext)
-        val repository = PlanSemanalRepository(database.planSemanalDao())
+        val repository = RutinaRepository(database.rutinaDao())
 
         // Inicializar el ViewModel
-        planSemanalViewModel = PlanSemanalViewModel(repository)
+        rutinaViewModel = RutinaViewModel(repository)
 
         // Obtener clientes y ejercicios
         lifecycleScope.launch {
@@ -34,8 +34,8 @@ class PlanSemanalActivity : ComponentActivity() {
                 ejercicios.collect { ejerciciosList ->
                     setContent {
                         PersonalTrainnerTheme {
-                            PlanSemanalScreen(
-                                viewModel = planSemanalViewModel,
+                            RutinaScreen(
+                                viewModel = rutinaViewModel,
                                 clientes = clientesList,
                                 ejercicios = ejerciciosList
                             )
