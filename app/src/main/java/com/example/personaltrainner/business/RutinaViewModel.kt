@@ -33,4 +33,7 @@ class RutinaViewModel(private val repository: RutinaRepository) : ViewModel() {
     fun obtenerRutinaPorId(rutinaId: Int): Flow<RutinaEntity?> {
         return repository.obtenerRutinaPorId(rutinaId)
     }
+    fun obtenerRutinasRecientes(): Flow<List<RutinaEntity>> {
+        return repository.obtenerRutinasRecientes()
+    }
 }

@@ -25,4 +25,7 @@ interface RutinaDao {
     suspend fun eliminarRutina(rutina: RutinaEntity)
     @Query("SELECT * FROM rutinas WHERE id = :rutinaId LIMIT 1")
     fun obtenerRutinaPorId(rutinaId: Int): Flow<RutinaEntity?>
+    // Nueva función para obtener rutinas recientes
+    @Query("SELECT * FROM rutinas ORDER BY fecha DESC LIMIT 10") // Cambia el número de límites si quieres más o menos
+    fun obtenerRutinasRecientes(): Flow<List<RutinaEntity>>
 }

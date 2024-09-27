@@ -21,4 +21,7 @@ class RutinaRepository(private val RutinaDao: RutinaDao) {
     fun obtenerRutinaPorId(rutinaId: Int): Flow<RutinaEntity?> {
         return RutinaDao.obtenerRutinaPorId(rutinaId)
     }
+    fun obtenerRutinasRecientes(): Flow<List<RutinaEntity>> {
+        return RutinaDao.obtenerRutinasRecientes()
+    }
 }

@@ -1,17 +1,19 @@
 package com.example.personaltrainner.ui
 
 import android.app.DatePickerDialog
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 import com.example.personaltrainner.business.RutinaViewModel
 import com.example.personaltrainner.data.ClienteEntity
 import com.example.personaltrainner.data.EjercicioEntity
@@ -24,9 +26,9 @@ import java.util.*
 fun RutinaScreen(
     viewModel: RutinaViewModel,
     clientes: List<ClienteEntity>,
-    ejercicios: List<EjercicioEntity>
+    ejercicios: List<EjercicioEntity>,
+    onCancel: () -> Unit // Callback para cancelar y volver atrás
 ) {
-    // Variables de estado para el formulario
     var expandedCliente by remember { mutableStateOf(false) }
     var expandedEjercicio by remember { mutableStateOf(false) }
     var selectedCliente by remember { mutableStateOf(clientes.firstOrNull()?.nombre ?: "") }
@@ -37,7 +39,6 @@ fun RutinaScreen(
     var series by remember { mutableStateOf("") }
     var fechaSeleccionada by remember { mutableStateOf("") }
 
-    // Contexto necesario para mostrar el DatePicker
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
     val year = calendar.get(Calendar.YEAR)
@@ -58,16 +59,17 @@ fun RutinaScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Título
+        // Título de la pantalla
         Text(
             text = "Crear Rutina",
             style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
+                fontSize = 22.sp,
+                color = MaterialTheme.colorScheme.primary
             ),
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        // Dropdown para seleccionar un cliente
+        // Dropdown para seleccionar cliente
         ExposedDropdownMenuBox(
             expanded = expandedCliente,
             onExpandedChange = { expandedCliente = !expandedCliente }
@@ -78,18 +80,8 @@ fun RutinaScreen(
                 label = { Text("Seleccionar Cliente", color = Color.Black) },
                 readOnly = true,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedBorderColor = Color.Black,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedLabelColor = Color.Black,
-                    unfocusedLabelColor = Color.Black,
-                    cursorColor = Color.Black
-                ),
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCliente)
-                },
+                colors = OutlinedTextFieldDefaults.colors(),
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCliente) },
                 modifier = Modifier.fillMaxWidth().menuAnchor()
             )
 
@@ -110,7 +102,7 @@ fun RutinaScreen(
             }
         }
 
-        // Dropdown para seleccionar un ejercicio
+        // Dropdown para seleccionar ejercicio
         ExposedDropdownMenuBox(
             expanded = expandedEjercicio,
             onExpandedChange = { expandedEjercicio = !expandedEjercicio }
@@ -121,18 +113,8 @@ fun RutinaScreen(
                 label = { Text("Seleccionar Ejercicio", color = Color.Black) },
                 readOnly = true,
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedBorderColor = Color.Black,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedLabelColor = Color.Black,
-                    unfocusedLabelColor = Color.Black,
-                    cursorColor = Color.Black
-                ),
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEjercicio)
-                },
+                colors = OutlinedTextFieldDefaults.colors(),
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEjercicio) },
                 modifier = Modifier.fillMaxWidth().menuAnchor()
             )
 
@@ -153,52 +135,31 @@ fun RutinaScreen(
             }
         }
 
-        // Campo de texto para la cantidad de repeticiones
+        // Campos para repeticiones y series
         OutlinedTextField(
             value = repeticiones,
             onValueChange = { repeticiones = it },
-            label = { Text("Cantidad de Repeticiones", color = Color.Black) },
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = Color.Gray,
-                focusedLabelColor = Color.Black,
-                unfocusedLabelColor = Color.Black,
-                cursorColor = Color.Black
-            ),
+            label = { Text("Repeticiones") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Campo de texto para la cantidad de series
         OutlinedTextField(
             value = series,
             onValueChange = { series = it },
-            label = { Text("Cantidad de Series", color = Color.Black) },
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedBorderColor = Color.Black,
-                unfocusedBorderColor = Color.Gray,
-                focusedLabelColor = Color.Black,
-                unfocusedLabelColor = Color.Black,
-                cursorColor = Color.Black
-            ),
+            label = { Text("Series") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Botón para mostrar el calendario y seleccionar la fecha
+        // Botón para seleccionar fecha
         Button(
             onClick = { datePickerDialog.show() },
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text(text = if (fechaSeleccionada.isEmpty()) "Seleccionar Fecha" else "Fecha: $fechaSeleccionada")
         }
 
-        // Botón para guardar el plan semanal
+        // Botón para guardar rutina
         Button(
             onClick = {
                 if (selectedClienteId != 0 && selectedEjercicioId != 0 && fechaSeleccionada.isNotEmpty() && repeticiones.isNotEmpty() && series.isNotEmpty()) {
@@ -218,34 +179,46 @@ fun RutinaScreen(
                     fechaSeleccionada = ""
                 }
             },
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
         ) {
             Text("Guardar Rutina")
         }
 
-        // Espacio para mostrar la lista de planes semanales guardados
+        // Botón para cancelar y volver
+        Button(
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+        ) {
+            Text("Cancelar")
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Mostrar la lista de planes semanales guardados
-        val rutinas by viewModel.obtenerTodosLosPlanes(1).collectAsState(initial = emptyList()) // Cambia el clienteId según sea necesario
-        LazyColumn {
-            items(rutinas) { rut ->
+        // Mostrar la lista de rutinas recientes (últimas creadas)
+        Text(
+            text = "Rutinas Recientes",
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        )
+
+        val rutinasRecientes by viewModel.obtenerRutinasRecientes().collectAsState(initial = emptyList())
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(rutinasRecientes) { rutina ->
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Text(text = "Cliente: ${rut.clienteId}")
-                        Text(text = "Ejercicio: ${rut.ejercicioId}")
-                        Text(text = "Fecha: ${SimpleDateFormat("dd/MM/yyyy").format(rut.fecha)}")
-                        Text(text = "Repeticiones: ${rut.repeticiones}")
-                        Text(text = "Series: ${rut.series}")
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = "Cliente: ${rutina.clienteId}")
+                        Text(text = "Ejercicio: ${rutina.ejercicioId}")
+                        Text(text = "Fecha: ${SimpleDateFormat("dd/MM/yyyy").format(rutina.fecha)}")
+                        Text(text = "Repeticiones: ${rutina.repeticiones}")
+                        Text(text = "Series: ${rutina.series}")
                     }
                 }
             }

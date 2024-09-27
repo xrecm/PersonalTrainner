@@ -10,6 +10,8 @@ import com.example.personaltrainner.data.RutinaRepository
 import com.example.personaltrainner.ui.RutinaScreen
 import com.example.personaltrainner.ui.theme.PersonalTrainnerTheme
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 
 class RutinaActivity : ComponentActivity() {
 
@@ -27,20 +29,19 @@ class RutinaActivity : ComponentActivity() {
 
         // Obtener clientes y ejercicios
         lifecycleScope.launch {
-            val clientes = database.clienteDao().obtenerTodosLosClientes() // Flow<List<ClienteEntity>>
-            val ejercicios = database.ejercicioDao().obtenerTodosLosEjercicios() // Flow<List<EjercicioEntity>>
+            // Recoger los datos de clientes y ejercicios
+            val clientesList = database.clienteDao().obtenerTodosLosClientes().first()
+            val ejerciciosList = database.ejercicioDao().obtenerTodosLosEjercicios().first()
 
-            clientes.collect { clientesList ->
-                ejercicios.collect { ejerciciosList ->
-                    setContent {
-                        PersonalTrainnerTheme {
-                            RutinaScreen(
-                                viewModel = rutinaViewModel,
-                                clientes = clientesList,
-                                ejercicios = ejerciciosList
-                            )
-                        }
-                    }
+            // Establecer la UI
+            setContent {
+                PersonalTrainnerTheme {
+                    RutinaScreen(
+                        viewModel = rutinaViewModel,
+                        clientes = clientesList,
+                        ejercicios = ejerciciosList,
+                        onCancel = { finish() } // Callback para cancelar y volver
+                    )
                 }
             }
         }
