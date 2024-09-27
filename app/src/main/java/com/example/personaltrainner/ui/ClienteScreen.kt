@@ -1,5 +1,6 @@
 package com.example.personaltrainner.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
@@ -79,7 +80,7 @@ fun ClienteListScreen(
                     membresia = membresia,
                     onVerRutinaClick = { navigateToRutina(it.id) },
                     onEditarClick = { navigateToEditar(it.id) },
-                    onEliminarClick = { viewModel.eliminarCliente(it) }
+                    onEliminarClick = { viewModel.eliminarCliente(cliente) }
                 )
                 Divider(modifier = Modifier.padding(vertical = 4.dp))
             }
@@ -87,6 +88,7 @@ fun ClienteListScreen(
     }
 }
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun ClienteCard(
     cliente: ClienteEntity,
@@ -99,7 +101,7 @@ fun ClienteCard(
     val statusColor = if (isActive) Color(0xFF4CAF50) else Color(0xFFF44336) // Verde para activo, rojo para inactivo
     val statusText = if (isActive) "Activo" else "Inactivo"
     val context = LocalContext.current
-            Card(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)

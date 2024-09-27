@@ -18,7 +18,6 @@ interface ClienteDao {
 
     @Delete
     suspend fun eliminar(cliente: ClienteEntity)
-
     @Query("SELECT * FROM clientes WHERE id = :clienteId")
     suspend fun obtenerCliente(clienteId: Int): ClienteEntity
 
