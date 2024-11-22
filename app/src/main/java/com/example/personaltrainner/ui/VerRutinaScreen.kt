@@ -1,13 +1,9 @@
+package com.example.personaltrainner.ui
+
 import android.app.Activity
 import android.app.DatePickerDialog
-import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
-import java.io.File
-import java.io.FileOutputStream
-import android.graphics.pdf.PdfDocument
-import android.os.Environment
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Text
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -22,7 +21,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.personaltrainner.business.RutinaViewModel
 import com.example.personaltrainner.business.EjercicioViewModel
-import com.example.personaltrainner.data.EjercicioEntity
+import com.example.personaltrainner.business.prototype.ConcretePrototype
+import com.example.personaltrainner.business.prototype.RutinaCloner
+import com.example.personaltrainner.business.strategy.ExportContext
+import com.example.personaltrainner.business.strategy.ExportarPDF
+import com.example.personaltrainner.business.strategy.ExportarCSV
+import com.example.personaltrainner.business.strategy.ExportarExcel
+import com.example.personaltrainner.data.ClienteEntity
 import com.example.personaltrainner.data.RutinaEntity
 import java.text.SimpleDateFormat
 import java.util.*
@@ -34,11 +39,14 @@ fun VerRutinaScreen(
     clienteApellido: String,
     rutinaViewModel: RutinaViewModel,
     ejercicioViewModel: EjercicioViewModel,
-    onEditRutina: (Int) -> Unit // Función para navegar a la pantalla de edición
+    clientesDisponibles: List<ClienteEntity>,
+    onEditRutina: (Int) -> Unit,// Función para navegar a la pantalla de edición
 ) {
     val rutinas by rutinaViewModel.obtenerRutinasPorCliente(clienteId).collectAsState(initial = emptyList())
     val context = LocalContext.current
     val ejercicios by ejercicioViewModel.obtenerTodosLosEjercicios().collectAsState(initial = emptyList())
+    val cloner = RutinaCloner()
+
 
     // Fechas de inicio y fin para filtrar rutinas
     var fechaInicio by remember { mutableStateOf("") }
@@ -59,6 +67,50 @@ fun VerRutinaScreen(
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
     )
 
+    // Estados para el diálogo
+    var showCloneDialog by remember { mutableStateOf(false) }
+    var rutinaSeleccionada by remember { mutableStateOf<RutinaEntity?>(null) }
+    var clienteSeleccionado by remember { mutableStateOf<ClienteEntity?>(null) }
+    var nuevaFecha by remember { mutableStateOf("") }
+
+    // Mostrar diálogo de clonación
+    if (showCloneDialog) {
+        CloneDialog(
+            rutina = rutinaSeleccionada,
+            clientes = clientesDisponibles,
+            clienteSeleccionado = clienteSeleccionado,
+            nuevaFecha = nuevaFecha,
+            onClienteSeleccionado = { clienteSeleccionado = it },
+            onFechaChange = { nuevaFecha = it },
+            onCancel = { showCloneDialog = false },
+            onConfirm = {
+                showCloneDialog = false
+                rutinaSeleccionada?.let { rutina ->
+                    clienteSeleccionado?.let { cliente ->
+                        try {
+                            val parsedFecha = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(nuevaFecha)
+                            val rutinaClonada = cloner.clonarRutina(
+                                ConcretePrototype(
+                                    id = rutina.id,
+                                    clienteId = rutina.clienteId,
+                                    ejercicioId = rutina.ejercicioId,
+                                    fecha = rutina.fecha,
+                                    repeticiones = rutina.repeticiones,
+                                    series = rutina.series
+                                ), cliente.id, parsedFecha!!
+                            )
+                            val rutinaEntity = (rutinaClonada as ConcretePrototype).toRutinaEntity()
+                            rutinaViewModel.insertarRutina(rutinaEntity)
+                            Toast.makeText(context, "Rutina clonada con éxito", Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Error al clonar rutina: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -74,6 +126,71 @@ fun VerRutinaScreen(
             ),
             modifier = Modifier.padding(bottom = 16.dp)
         )
+        val exportContext = remember { ExportContext(ExportarPDF()) } // Estrategia inicial
+        var formatoSeleccionado by remember { mutableStateOf("PDF") }
+
+        // Dropdown para seleccionar formato de exportación
+        DropdownMenuDemo(
+            selectedFormato = formatoSeleccionado,
+            onFormatoSeleccionado = { formato ->
+                formatoSeleccionado = formato
+                exportContext.setStrategy(
+                    when (formato) {
+                        "Excel" -> ExportarExcel()
+                        "CSV" -> ExportarCSV()
+                        "PDF" -> ExportarPDF()
+                        else -> ExportarPDF() // Default
+                    }
+                )
+            }
+        )
+        // Botón para exportar
+        Button(onClick = {
+            if (rutinas.isNotEmpty()) {
+                val datos = rutinas.map { rutina ->
+                    val ejercicio = ejercicios.find { it.id == rutina.ejercicioId }?.nombre ?: "Desconocido"
+                    "Cliente: $clienteNombre $clienteApellido, Ejercicio: $ejercicio, Repeticiones: ${rutina.repeticiones}, Series: ${rutina.series}, Fecha: ${rutina.fecha}"
+                }
+                val resultado = exportContext.exportar(context, rutinas, ejercicios)
+                Toast.makeText(context, resultado, Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(context, "No hay rutinas para exportar", Toast.LENGTH_SHORT).show()
+            }
+        }) {
+            Text("Exportar en $formatoSeleccionado")
+        }
+
+        // Mostrar lista de rutinas
+        if (rutinas.isEmpty()) {
+            Text(
+                text = "No hay rutinas para mostrar",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else{
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(rutinas) { rutina ->
+                    RutinaCard(
+                        rutina = rutina,
+                        ejercicioViewModel = ejercicioViewModel,
+                        onEdit = onEditRutina,
+                        onDelete = { rutinaViewModel.eliminarRutina(rutina) },
+                        onClone = {
+                            rutinaSeleccionada = rutina
+                            showCloneDialog = true
+                        }
+                    )
+                }
+            }
+        }
+
 
         // Botón para volver
         Button(
@@ -97,31 +214,6 @@ fun VerRutinaScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        // Botón para exportar el PDF solo con las rutinas en el rango de fechas
-        Button(
-            onClick = {
-                if (rutinas.isNotEmpty()) {
-                    val rutinasFiltradas = rutinas.filter {
-                        val fechaRutina = dateFormat.parse(dateFormat.format(it.fecha))
-                        val inicio = if (fechaInicio.isNotEmpty()) dateFormat.parse(fechaInicio) else null
-                        val fin = if (fechaFin.isNotEmpty()) dateFormat.parse(fechaFin) else null
-                        (inicio == null || fechaRutina.after(inicio)) && (fin == null || fechaRutina.before(fin))
-                    }
-                    if (rutinasFiltradas.isNotEmpty()) {
-                        generarPdf(context, rutinasFiltradas, ejercicios, clienteNombre, clienteApellido)
-                    } else {
-                        Toast.makeText(context, "No hay rutinas en el rango seleccionado", Toast.LENGTH_SHORT).show()
-                    }
-                } else {
-                    Toast.makeText(context, "No hay rutinas para exportar", Toast.LENGTH_SHORT).show()
-                }
-            },
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Exportar PDF")
-        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -235,80 +327,159 @@ fun formatearFecha(fecha: Date): String {
     }
 }
 
-fun generarPdf(context: Context, rutinas: List<RutinaEntity>, ejercicios: List<EjercicioEntity>, clienteNombre: String, clienteApellido: String) {
-    val pdfDocument = PdfDocument()
-    val paint = Paint()
+@Composable
+fun DropdownMenuDemo(
+    selectedFormato: String,
+    onFormatoSeleccionado: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val formatos = listOf("Excel", "CSV", "PDF")
 
-    // Tamaño de la página en A4
-    val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create()
-    var page = pdfDocument.startPage(pageInfo)
-    var canvas: Canvas = page.canvas
-
-    // Variables para controlar el diseño
-    var yPosition = 50f
-    paint.textSize = 20f
-    paint.isFakeBoldText = true
-    canvas.drawText("Rutinas de $clienteNombre $clienteApellido", 20f, yPosition, paint)
-
-    yPosition += 40f
-
-    paint.textSize = 14f
-    paint.isFakeBoldText = false
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
-    // Recorrer las rutinas y agregar al PDF
-    for (rutina in rutinas) {
-        if (yPosition > 750f) { // Si la página está llena, agregar una nueva
-            pdfDocument.finishPage(page)
-            page = pdfDocument.startPage(pageInfo)
-            canvas = page.canvas
-            yPosition = 50f
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "Formato seleccionado: $selectedFormato", modifier = Modifier.padding(8.dp))
+        Button(onClick = { expanded = true }) {
+            Text("Seleccionar Formato")
         }
-
-        // Obtener el nombre del ejercicio basado en el ID
-        val ejercicio = ejercicios.find { it.id == rutina.ejercicioId }
-        val ejercicioNombre = ejercicio?.nombre ?: "Desconocido"
-
-        // Encabezado de cada rutina con línea divisoria
-        paint.textSize = 16f
-        paint.isFakeBoldText = true
-        canvas.drawText("Rutina del ${dateFormat.format(rutina.fecha)}", 20f, yPosition, paint)
-        yPosition += 10f
-        canvas.drawLine(20f, yPosition, 575f, yPosition, paint)
-        yPosition += 20f
-
-        // Detalles de la rutina
-        paint.textSize = 14f
-        paint.isFakeBoldText = false
-        canvas.drawText("Ejercicio: $ejercicioNombre", 20f, yPosition, paint)
-        yPosition += 20f
-        canvas.drawText("Repeticiones: ${rutina.repeticiones}", 20f, yPosition, paint)
-        yPosition += 20f
-        canvas.drawText("Series: ${rutina.series}", 20f, yPosition, paint)
-        yPosition += 30f
-
-        // Dibujar una línea separadora después de cada rutina
-        paint.style = Paint.Style.STROKE
-        canvas.drawLine(20f, yPosition, 575f, yPosition, paint)
-        paint.style = Paint.Style.FILL
-        yPosition += 20f
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            formatos.forEach { formato ->
+                DropdownMenuItem(
+                    text = { Text(formato) },
+                    onClick = {
+                        onFormatoSeleccionado(formato)
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
+}
 
-    // Finalizar la última página
-    pdfDocument.finishPage(page)
+@Composable
+fun RutinaCard(
+    rutina: RutinaEntity,
+    ejercicioViewModel: EjercicioViewModel,
+    onEdit: (Int) -> Unit, // Callback para editar
+    onDelete: () -> Unit,   // Callback para eliminar
+    onClone: (Int) -> Unit  // Callback para clonar
+) {
+    val ejercicio by ejercicioViewModel.obtenerEjercicioPorId(rutina.ejercicioId).collectAsState(initial = null)
+    val fechaFormateada = formatearFecha(rutina.fecha)
 
-    // Guardar el PDF en el almacenamiento externo
-    val directoryPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString()
-    val fileName = "Rutinas_${clienteNombre}_${clienteApellido}_${System.currentTimeMillis()}.pdf"
-    val file = File(directoryPath, fileName)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.elevatedCardElevation(4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Fecha: $fechaFormateada",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            )
+            Text(
+                text = "Ejercicio: ${ejercicio?.nombre ?: "Cargando..."}",
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp)
+            )
+            Text(
+                text = "Repeticiones: ${rutina.repeticiones}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
+                text = "Series: ${rutina.series}",
+                style = MaterialTheme.typography.bodyMedium
+            )
 
-    try {
-        pdfDocument.writeTo(FileOutputStream(file))
-        Toast.makeText(context, "PDF guardado en: $directoryPath/$fileName", Toast.LENGTH_LONG).show()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        Toast.makeText(context, "Error al generar PDF", Toast.LENGTH_SHORT).show()
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Button(onClick = { onEdit(rutina.id) }) {
+                    Text("Editar")
+                }
+                Button(onClick = { onDelete() }, colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error)) {
+                    Text("Eliminar")
+                }
+                Button(onClick = {
+                    val nuevoClienteId = 101 // Aquí puedes solicitar el nuevo clienteId dinámicamente
+                    onClone(nuevoClienteId)
+                }) {
+                    Text("Clonar")
+                }
+            }
+        }
     }
+}
 
-    pdfDocument.close()
+@Composable
+fun CloneDialog(
+    rutina: RutinaEntity?,
+    clientes: List<ClienteEntity>,
+    clienteSeleccionado: ClienteEntity?,
+    nuevaFecha: String,
+    onClienteSeleccionado: (ClienteEntity) -> Unit,
+    onFechaChange: (String) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = { onCancel() },
+        title = { Text("Clonar Rutina") },
+        text = {
+            Column {
+                Text("Selecciona el Cliente:")
+                LazyColumn(modifier = Modifier.height(150.dp)) {
+                    items(clientes) { cliente ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .clickable { onClienteSeleccionado(cliente) },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = clienteSeleccionado?.id == cliente.id,
+                                onClick = { onClienteSeleccionado(cliente) }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = "${cliente.nombre} ${cliente.apellido}")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Selecciona la Fecha:")
+                TextField(
+                    value = nuevaFecha,
+                    onValueChange = onFechaChange,
+                    label = { Text("Nueva Fecha (dd/MM/yyyy)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = clienteSeleccionado != null && nuevaFecha.isNotEmpty()
+            ) {
+                Text("Clonar")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onCancel) {
+                Text("Cancelar")
+            }
+        }
+    )
 }

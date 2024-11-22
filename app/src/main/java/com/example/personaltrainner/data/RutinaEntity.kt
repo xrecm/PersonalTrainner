@@ -12,7 +12,7 @@ import java.util.Date
         ForeignKey(entity = EjercicioEntity::class, parentColumns = ["id"], childColumns = ["ejercicioId"])
     ]
 )
-data class RutinaEntity(
+open class RutinaEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val clienteId: Int,
     val ejercicioId: Int,

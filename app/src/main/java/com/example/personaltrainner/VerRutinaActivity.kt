@@ -1,19 +1,21 @@
 package com.example.personaltrainner
 
-import VerRutinaScreen
+import com.example.personaltrainner.ui.VerRutinaScreen
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.ViewModelProvider
 import com.example.personaltrainner.ui.theme.PersonalTrainnerTheme
 import com.example.personaltrainner.business.RutinaViewModel
 import com.example.personaltrainner.business.EjercicioViewModel
-import androidx.lifecycle.ViewModelProvider
+import com.example.personaltrainner.business.ClienteViewModel
 import com.example.personaltrainner.business.RutinaViewModelFactory
 import com.example.personaltrainner.business.EjercicioViewModelFactory
-import com.example.personaltrainner.data.AppDatabase
-import com.example.personaltrainner.data.RutinaRepository
-import com.example.personaltrainner.data.EjercicioRepository
+import com.example.personaltrainner.business.ClienteViewModelFactory
+import com.example.personaltrainner.data.*
 
 class VerRutinaActivity : ComponentActivity() {
     private var clienteId: Int = -1
@@ -21,6 +23,7 @@ class VerRutinaActivity : ComponentActivity() {
     private lateinit var clienteApellido: String
     private lateinit var rutinaViewModel: RutinaViewModel
     private lateinit var ejercicioViewModel: EjercicioViewModel
+    private lateinit var clienteViewModel: ClienteViewModel // ViewModel para clientes
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,15 +49,25 @@ class VerRutinaActivity : ComponentActivity() {
         ejercicioViewModel = ViewModelProvider(this, EjercicioViewModelFactory(ejercicioRepository))
             .get(EjercicioViewModel::class.java)
 
+        // Inicializar ViewModel para Cliente
+        val clienteRepository = ClienteRepository(database.clienteDao())
+        clienteViewModel = ViewModelProvider(this, ClienteViewModelFactory(clienteRepository))
+            .get(ClienteViewModel::class.java)
+
         // Cargar la pantalla
         setContent {
             PersonalTrainnerTheme {
+                // Obtener clientes disponibles como un flujo
+                val clientesDisponibles by clienteViewModel.obtenerTodosLosClientes()
+                    .collectAsState(initial = emptyList())
+
                 VerRutinaScreen(
                     clienteId = clienteId,
                     clienteNombre = clienteNombre,
                     clienteApellido = clienteApellido,
                     rutinaViewModel = rutinaViewModel,
                     ejercicioViewModel = ejercicioViewModel,
+                    clientesDisponibles = clientesDisponibles, // Pasar lista de clientes
                     onEditRutina = { rutinaId ->
                         // Acción para editar la rutina
                         val intent = Intent(this, RutinaEditarActivity::class.java)

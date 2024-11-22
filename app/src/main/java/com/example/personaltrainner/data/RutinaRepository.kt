@@ -1,5 +1,6 @@
 package com.example.personaltrainner.data
 
+import com.example.personaltrainner.business.prototype.ConcretePrototype
 import kotlinx.coroutines.flow.Flow
 
 class RutinaRepository(private val RutinaDao: RutinaDao) {
@@ -7,6 +8,7 @@ class RutinaRepository(private val RutinaDao: RutinaDao) {
     suspend fun insertarRutina(rutina: RutinaEntity) {
         RutinaDao.insertarRutina(rutina)
     }
+
     fun obtenerTodosLosPlanes(clienteId: Int) = RutinaDao.obtenerTodosLosPlanes(clienteId)
     suspend fun actualizarRutina(rutina: RutinaEntity) {
         RutinaDao.actualizarRutina(rutina)
